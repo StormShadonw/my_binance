@@ -7,12 +7,17 @@ class DataProvider extends ChangeNotifier {
 
   Future<String?> getSymbolsPrice() async {
     try {
-      debugPrint("klk");
+      symbolsPrice.clear();
       final dio = Dio();
       final response = await dio.get(
         'https://api.binance.com/api/v3/ticker/price',
       );
       debugPrint(response.data.toString());
+      if (response.data != null) {
+        for (var element in response.data) {
+          symbolsPrice.add(SymbolPrice.fromJson(element));
+        }
+      }
       return null;
     } catch (error) {
       debugPrint(error.toString());
