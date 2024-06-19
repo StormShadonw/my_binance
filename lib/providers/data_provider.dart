@@ -11,6 +11,11 @@ class DataProvider extends ChangeNotifier {
   List<TradingDay> tradingDay = [];
   User? user = null;
   List<User> users = [];
+  BaseOptions baseOptions = BaseOptions(
+    connectTimeout: const Duration(seconds: 10),
+    sendTimeout: const Duration(seconds: 10),
+    receiveTimeout: const Duration(seconds: 10),
+  );
 
   List<User> getUsers() {
     return users;
@@ -25,11 +30,13 @@ class DataProvider extends ChangeNotifier {
   }
 
   String? login(String email, String password) {
-    User? _user = users
-        .where(
-          (element) => element.email == email && element.password == password,
-        )
-        .first;
+    var _users = users.where(
+      (element) => element.email == email && element.password == password,
+    );
+    if (_users.isEmpty) {
+      return "Usuario no encontrado, favor intentar con otra contraseña u otro correo";
+    }
+    User? _user = _users.first;
     if (_user != null) {
       user = _user;
       notifyListeners();
@@ -58,7 +65,7 @@ class DataProvider extends ChangeNotifier {
   Future<String?> getSymbolsPrice() async {
     try {
       symbolsPrice.clear();
-      final dio = Dio();
+      final dio = Dio(baseOptions);
       final response = await dio.get(
         'https://api.binance.com/api/v3/ticker/price',
       );
@@ -78,7 +85,7 @@ class DataProvider extends ChangeNotifier {
   Future<String?> getSymbols24hrPrice() async {
     try {
       symbols24hrPrice.clear();
-      final dio = Dio();
+      final dio = Dio(baseOptions);
       final response = await dio.get(
         'https://api.binance.com/api/v3/ticker/24hr',
         // queryParameters: {
@@ -101,7 +108,7 @@ class DataProvider extends ChangeNotifier {
   Future<String?> getTradingDay() async {
     try {
       tradingDay.clear();
-      final dio = Dio();
+      final dio = Dio(baseOptions);
       final response = await dio.get(
         'https://api.binance.com/api/v3/ticker/24hr',
         queryParameters: {
