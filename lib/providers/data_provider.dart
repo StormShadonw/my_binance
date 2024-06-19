@@ -2,10 +2,12 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:my_binance/models/symbol_24hr_price.dart';
 import 'package:my_binance/models/symbol_price.dart';
+import 'package:my_binance/models/trading_day.dart';
 
 class DataProvider extends ChangeNotifier {
   List<SymbolPrice> symbolsPrice = [];
   List<Symbol24Price> symbols24hrPrice = [];
+  List<TradingDay> tradingDay = [];
 
   Future<String?> getSymbolsPrice() async {
     try {
@@ -41,6 +43,29 @@ class DataProvider extends ChangeNotifier {
       if (response.data != null) {
         for (var element in response.data) {
           symbols24hrPrice.add(Symbol24Price.fromJson(element));
+        }
+      }
+      return null;
+    } catch (error) {
+      debugPrint(error.toString());
+      return error.toString();
+    }
+  }
+
+  Future<String?> getTradingDay() async {
+    try {
+      tradingDay.clear();
+      final dio = Dio();
+      final response = await dio.get(
+        'https://api.binance.com/api/v3/ticker/24hr',
+        queryParameters: {
+          "symbols": '["BTCUSDT","ETHUSDT","BNBUSDT","SOLUSDT","XRPUSDT"]',
+        },
+      );
+      debugPrint(response.data.toString());
+      if (response.data != null) {
+        for (var element in response.data) {
+          tradingDay.add(TradingDay.fromJson(element));
         }
       }
       return null;

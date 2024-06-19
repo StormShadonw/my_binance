@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:my_binance/pages/auth_dage.dart';
 import 'package:my_binance/pages/home_page.dart';
 import 'package:my_binance/providers/data_provider.dart';
 import 'package:provider/provider.dart';
@@ -21,12 +22,13 @@ class MyApp extends StatelessWidget {
         title: 'My Binance Api App',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.yellowAccent),
           useMaterial3: true,
         ),
-        home: const HomePage(),
+        home: const AuthPage(),
         routes: {
           HomePage.routeName: (context) => const HomePage(),
+          AuthPage.routeName: (context) => const AuthPage(),
         },
       ),
     );

@@ -4,6 +4,7 @@ import 'package:my_binance/helpers/alerts.dart';
 import 'package:my_binance/helpers/formats.dart';
 import 'package:my_binance/models/symbol_24hr_price.dart';
 import 'package:my_binance/models/symbol_price.dart';
+import 'package:my_binance/models/trading_day.dart';
 import 'package:my_binance/providers/data_provider.dart';
 import 'package:provider/provider.dart';
 
@@ -20,6 +21,7 @@ class _HomePageState extends State<HomePage> {
   DataProvider dataProvider = DataProvider();
   List<SymbolPrice> symbolsPrice = [];
   List<Symbol24Price> symbols24Price = [];
+  List<TradingDay> tradingDay = [];
   var colors = [
     Colors.redAccent,
     Colors.yellowAccent,
@@ -34,12 +36,14 @@ class _HomePageState extends State<HomePage> {
     });
     print("klk 2");
     await dataProvider.getSymbols24hrPrice();
+    await dataProvider.getTradingDay();
     var result = await dataProvider.getSymbolsPrice();
     if (result != null) {
       showError(context, result);
     } else {
       symbolsPrice = dataProvider.symbolsPrice;
       symbols24Price = dataProvider.symbols24hrPrice;
+      tradingDay = dataProvider.tradingDay;
       colors.shuffle();
       symbolsPrice.removeWhere(
         (element) => !element.symbol!.contains("USDT", 3),
@@ -94,6 +98,9 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
     return Scaffold(
+      appBar: AppBar(
+        title: Text("Binance API App"),
+      ),
       body: _isLoading
           ? const Center(
               child: CircularProgressIndicator.adaptive(),
@@ -169,13 +176,65 @@ class _HomePageState extends State<HomePage> {
                                   color: colors[index],
                                 )
                               ],
-                              // value: double.parse(
-                              //     symbols24Price[index].volume ?? "0.00"),
-                              // title:
-                              //     "${symbols24Price[index].symbol}: ${MyFormats().currencyFormat(double.parse(symbols24Price[index].volume ?? "0.00"))}",
-                              // showTitle: true,
-                              // radius: 70,
-                              // color: colors[index],
+                            ),
+                          ),
+                        ),
+                      );
+                    }),
+                  ),
+                  subTitle(size, "Porcentaje de cambio de precio monedas top"),
+                  Container(
+                    width: size.width,
+                    height: 250,
+                    child: Builder(builder: (context) {
+                      var tradingDaySorted = tradingDay;
+                      tradingDaySorted.sort((a, b) => (double.parse(
+                              b.priceChangePercent ?? "0.00")
+                          .compareTo(
+                              double.parse(a.priceChangePercent ?? "0.00"))));
+                      for (var element in tradingDay) {
+                        print(element.symbol);
+                        print(element.priceChangePercent);
+                      }
+                      return BarChart(
+                        BarChartData(
+                          maxY: double.parse(
+                                  tradingDaySorted[0].priceChangePercent ??
+                                      "0.00") *
+                              1.10,
+                          minY: double.parse(
+                              tradingDaySorted[tradingDaySorted.length - 1]
+                                      .priceChangePercent ??
+                                  "0.00"),
+                          titlesData: FlTitlesData(
+                              bottomTitles: AxisTitles(
+                                  sideTitles: SideTitles(
+                            showTitles: true,
+                            getTitlesWidget: (value, meta) => SideTitleWidget(
+                              axisSide: meta.axisSide,
+                              child: Text(
+                                tradingDay[value.toInt()].symbol ?? "",
+                                style: Theme.of(context)
+                                    .textTheme
+                                    .bodySmall!
+                                    .copyWith(
+                                      fontSize: 7,
+                                    ),
+                              ),
+                            ),
+                          ))),
+                          barGroups: List.generate(
+                            tradingDay.length,
+                            (index) => BarChartGroupData(
+                              x: index,
+                              barRods: [
+                                BarChartRodData(
+                                  toY: double.parse(
+                                      tradingDay[index].priceChangePercent ??
+                                          "0.00"),
+                                  color: colors[index],
+                                )
+                              ],
                             ),
                           ),
                         ),
