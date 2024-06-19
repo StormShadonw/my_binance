@@ -1,5 +1,8 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:my_binance/helpers/alerts.dart';
+import 'package:my_binance/providers/data_provider.dart';
+import 'package:provider/provider.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -12,6 +15,25 @@ class _LoginPageState extends State<LoginPage> {
   GlobalKey<FormState> _form = GlobalKey<FormState>();
   TextEditingController _email = TextEditingController();
   TextEditingController _password = TextEditingController();
+  DataProvider dataProvider = DataProvider();
+
+  void logIn() {
+    if (_form.currentState!.validate()) {
+      var result = dataProvider.login(_email.value.text, _password.value.text);
+      if (result != null) {
+        showError(context, result);
+      }
+    }
+  }
+
+  @override
+  void initState() {
+    dataProvider = Provider.of<DataProvider>(
+      context,
+      listen: false,
+    );
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -124,7 +146,7 @@ class _LoginPageState extends State<LoginPage> {
               Container(
                 margin: EdgeInsets.symmetric(vertical: 10),
                 child: ElevatedButton.icon(
-                  onPressed: () {},
+                  onPressed: () => logIn(),
                   label: Text("Iniciar sesión"),
                   icon: Icon(Icons.login),
                 ),

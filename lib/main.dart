@@ -25,7 +25,10 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.yellowAccent),
           useMaterial3: true,
         ),
-        home: const AuthPage(),
+        home: Consumer<DataProvider>(
+          builder: (context, value, child) =>
+              value.user == null ? const AuthPage() : const HomePage(),
+        ),
         routes: {
           HomePage.routeName: (context) => const HomePage(),
           AuthPage.routeName: (context) => const AuthPage(),

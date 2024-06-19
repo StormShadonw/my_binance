@@ -94,12 +94,19 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  void logout() {
+    dataProvider.logout();
+  }
+
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
-        title: Text("Binance API App"),
+        title: const Text("Binance API App"),
+        actions: [
+          IconButton(onPressed: () => logout(), icon: const Icon(Icons.logout)),
+        ],
       ),
       body: _isLoading
           ? const Center(

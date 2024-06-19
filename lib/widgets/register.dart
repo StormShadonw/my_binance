@@ -1,5 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:my_binance/helpers/alerts.dart';
+import 'package:my_binance/pages/home_page.dart';
+import 'package:my_binance/providers/data_provider.dart';
+import 'package:provider/provider.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -13,6 +17,29 @@ class _RegisterPageState extends State<RegisterPage> {
   TextEditingController _email = TextEditingController();
   TextEditingController _password = TextEditingController();
   TextEditingController _repeatPassword = TextEditingController();
+  DataProvider dataProvider = DataProvider();
+
+  void register() {
+    if (_form.currentState!.validate()) {
+      var result =
+          dataProvider.insertNewUser(_email.value.text, _password.value.text);
+      if (result != null) {
+        showError(context, result);
+      } else {
+        showSuccessMessage(context, "Usuario registrado correctamente", null);
+        dataProvider.login(_email.value.text, _password.value.text);
+      }
+    }
+  }
+
+  @override
+  void initState() {
+    dataProvider = Provider.of<DataProvider>(
+      context,
+      listen: false,
+    );
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -170,7 +197,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 Container(
                   margin: EdgeInsets.symmetric(vertical: 10),
                   child: ElevatedButton.icon(
-                    onPressed: () {},
+                    onPressed: () => register(),
                     label: Text("Registrarse"),
                     icon: Icon(Icons.save),
                   ),
